@@ -1,63 +1,145 @@
-const express = require('express');
-const axios = require('axios');
-const dotenv = require('dotenv');
+const express = require("express");
+const axios = require("axios");
+const dotenv = require("dotenv");
+const querystring = require("querystring");
 
 dotenv.config();
 
-const app = express();
-const port = 3001;
+var app = express();
+const port = 3000;
 
-app.use(express.static('build'));
+app.use(express.static("build"));
 
-const redirectUri = 'http://localhost:3001/callback';
-const spotifyAuthEndpoint = 'https://accounts.spotify.com/authorize';
-const clientId = process.env.SPOTIFY_CLIENT_ID;
-const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-const scopes = ['user-read-private', 'playlist-modify-private'];
+const spotifyAuthEndpoint = "https://accounts.spotify.com/authorize";
+const client_id = process.env.SPOTIFY_CLIENT_ID;
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 
-app.get('/login', (req, res) => {
-  const authUrl = `${spotifyAuthEndpoint}?response_type=code&client_id=${clientId}&scope=${scopes.join(' ')}&redirect_uri=${redirectUri}`;
-  res.redirect(authUrl);
+var redirect_uri = "http://localhost:3000/callback";
+
+function generateRandomString(length) {
+  let text = "";
+  const possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (let i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
+
+app.get("/login", function (req, res) {
+  var state = generateRandomString(16);
+  var scope = "user-read-private user-read-email user-top-read";
+
+  res.redirect(
+    spotifyAuthEndpoint +
+      "?" +
+      querystring.stringify({
+        response_type: "code",
+        client_id: client_id,
+        scope: scope,
+        redirect_uri: redirect_uri,
+        state: state,
+      })
+  );
 });
 
-app.get('/callback', async (req, res) => {
-  const code = req.query.code;
+app.get("/callback", function (req, res) {
+  var code = req.query.code || null;
+  var state = req.query.state || null;
 
-  try {
-    const response = await axios.post('https://accounts.spotify.com/api/token', null, {
-      params: {
-        code,
-        redirect_uri: redirectUri,
-        grant_type: 'authorization_code'
+  if (state === null) {
+    res.redirect(
+      "/#" +
+        querystring.stringify({
+          error: "state_mismatch",
+        })
+    );
+  } else {
+    var authOptions = {
+      url: "https://accounts.spotify.com/api/token",
+      data: {
+        code: code,
+        redirect_uri: redirect_uri,
+        grant_type: "authorization_code",
       },
       headers: {
-        'Authorization': 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
+        "content-type": "application/x-www-form-urlencoded",
+        Authorization:
+          "Basic " +
+          new Buffer.from(client_id + ":" + client_secret).toString("base64"),
+      },
+      json: true,
+    };
 
-    const accessToken = response.data.access_token;
-    res.redirect(`/?access_token=${accessToken}`);
-  } catch (error) {
-    console.error('Error getting Spotify access token', error);
-    res.send('Error getting Spotify access token');
+    axios
+      .post(authOptions.url, authOptions.data, { headers: authOptions.headers })
+      .then((response) => {
+        const accessToken = response.data.access_token;
+        res.redirect(
+          "/?" + querystring.stringify({ access_token: accessToken })
+        );
+      })
+      .catch((error) => {
+        console.error("Error getting Spotify access token:", error);
+        res.send("Error getting Spotify access token");
+      });
   }
 });
 
-app.get('/playlist', async (req, res) => {
-  const mood = req.query.mood;
-  const accessToken = req.query.access_token;
+app.get("/recommendations", async (req, res) => {
+  const { background, face, body, access_token: accessToken } = req.query;
 
-  // Implement logic to get a playlist based on the mood
-  const songs = [
-    { name: 'Song 1', artist: 'Artist 1' },
-    { name: 'Song 2', artist: 'Artist 2' },
-    { name: 'Song 3', artist: 'Artist 3' },
-    { name: 'Song 4', artist: 'Artist 4' },
-    { name: 'Song 5', artist: 'Artist 5' }
-  ];
+  if (!accessToken) {
+    return res.status(400).send("Access token is missing");
+  }
 
-  res.json({ songs });
+  try {
+    // Get user's top tracks or artists
+    const topTracksResponse = await axios.get(
+      "https://api.spotify.com/v1/me/top/tracks",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const topTracks = topTracksResponse.data.items;
+    const seedTracks = topTracks.slice(0, 5).map((track) => track.id); // Use top 5 tracks as seeds
+
+    // Get recommendations based on mood and top tracks
+    const recommendationsResponse = await axios.get(
+      "https://api.spotify.com/v1/recommendations",
+      {
+        params: {
+          seed_tracks: seedTracks.join(","),
+          limit: 5, // Get 5 recommendations
+          target_energy:
+            face === "energetic" ? 0.8 : face === "relaxed" ? 0.2 : 0.5,
+          target_valence: face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    const recommendations = recommendationsResponse.data.tracks.map(
+      (track) => ({
+        name: track.name,
+        artist: track.artists[0].name,
+      })
+    );
+
+    res.json({ songs: recommendations });
+  } catch (error) {
+    console.error(
+      "Error getting recommendations:",
+      error.response ? error.response.data : error.message
+    );
+    res.status(500).send("Error getting recommendations");
+  }
 });
 
 app.listen(port, () => {
