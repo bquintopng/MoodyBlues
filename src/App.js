@@ -7,6 +7,7 @@ import Playlist from "./components/Playlist";
 const App = () => {
   const [accessToken, setAccessToken] = useState(null);
   const [songs, setSongs] = useState([]);
+  const [mood, setMood] = useState({ background: "", face: "", body: "" });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -28,6 +29,27 @@ const App = () => {
     setSongs(response.data.songs);
   };
 
+  
+
+  const handleAddPlaylist = async () => {
+    try {
+      const trackUris = songs.map((song) => `spotify:track:${song.id}`).join(",");
+      await axios.get("/create-playlist", {
+        params: {
+          access_token: accessToken,
+          songs: trackUris,
+        },
+      });
+      alert("Playlist added to your profile!");
+    } catch (error) {
+      console.error("Error adding playlist to profile:", error);
+    }
+  };
+
+  const handleGoBack = () => {
+    setSongs([]);
+  };
+
   return (
     <div className="App">
       <h1>Moody Blues</h1>
@@ -35,7 +57,13 @@ const App = () => {
       {accessToken && !songs.length && (
         <MoodSelect onMoodSelect={handleMoodSelect} />
       )}
-      {songs.length > 0 && <Playlist songs={songs} />}
+      {songs.length > 0 && (
+        <>
+          <Playlist songs={songs} />
+          <button onClick={handleAddPlaylist}>Add Playlist to Profile</button>
+          <button onClick={handleGoBack}>Go Back</button>
+        </>
+      )}
     </div>
   );
 };

@@ -7,14 +7,29 @@ const MoodSelect = ({ onMoodSelect }) => {
 
   const faces = ["Happy", "Sad", "Energetic", "Relaxed"];
   const bodies = ["Running", "Sitting", "Standing", "Dancing"];
-  const background = ["City", "Park", "Party", "Gym"];
+  const backgrounds = ["City", "Park", "Party", "Gym"];
 
   const handleSubmit = () => {
-    onMoodSelect({
+    if (!selectedBackground || !selectedFace || !selectedBody) {
+      alert("Please complete your mood selection by choosing one option from each category.");
+      return;
+    }
+
+    const selectedMood = {
       background: selectedBackground,
       face: selectedFace,
       body: selectedBody,
-    });
+    };
+
+    console.log("User's selected mood:", selectedMood);
+    onMoodSelect(selectedMood);
+  };
+
+  const isSelected = (category, value) => {
+    if (category === "background") return selectedBackground === value;
+    if (category === "face") return selectedFace === value;
+    if (category === "body") return selectedBody === value;
+    return false;
   };
 
   return (
@@ -22,9 +37,10 @@ const MoodSelect = ({ onMoodSelect }) => {
       <h2>Select your mood:</h2>
       <div>
         <h3>Background</h3>
-        {background.map((background) => (
+        {backgrounds.map((background) => (
           <button
             key={background}
+            className={isSelected("background", background.toLowerCase()) ? "selected" : ""}
             onClick={() => setSelectedBackground(background.toLowerCase())}
           >
             {background}
@@ -36,6 +52,7 @@ const MoodSelect = ({ onMoodSelect }) => {
         {faces.map((face) => (
           <button
             key={face}
+            className={isSelected("face", face.toLowerCase()) ? "selected" : ""}
             onClick={() => setSelectedFace(face.toLowerCase())}
           >
             {face}
@@ -47,6 +64,7 @@ const MoodSelect = ({ onMoodSelect }) => {
         {bodies.map((body) => (
           <button
             key={body}
+            className={isSelected("body", body.toLowerCase()) ? "selected" : ""}
             onClick={() => setSelectedBody(body.toLowerCase())}
           >
             {body}

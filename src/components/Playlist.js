@@ -1,13 +1,13 @@
 import React from "react";
 
-const Playlist = ({ songs }) => {
+const Playlist = ({ songs, onAddPlaylist, onGoBack }) => {
   return (
     <div>
       <h2>Your Playlist:</h2>
       <ul>
         {songs.map((song, index) => (
           <li key={index}>
-            {song.name} by {song.artist} <br></br>
+            {song.name} by {song.artist} <br />
           </li>
         ))}
       </ul>

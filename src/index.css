@@ -1,9 +1,33 @@
+/* Center the entire body content */
 body {
   font-family: Arial, sans-serif;
   text-align: center;
-  margin-top: 50px;
+  margin: 50px auto;
+  max-width: 800px; /* Optional: limits the width of the content for better readability */
 }
 
+/* Style the container for playlist and buttons */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px; /* Optional: adds space above the container */
+}
+
+/* Remove default list styling */
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Style list items */
+li {
+  margin-bottom: 10px; /* Space between list items */
+  font-size: 18px; /* Optional: adjust font size for better readability */
+}
+
+/* Style for buttons */
 button {
   margin: 10px;
   padding: 10px 20px;
@@ -14,6 +38,12 @@ button {
   transition: background-color 0.25s;
 }
 
+/* Hover effect */
 button:hover {
   background-color: hsl(214, 100%, 56%);
+}
+
+/* Selected state effect */
+button.selected {
+  background-color: hsl(214, 100%, 60%); /* Darker color for selected state */
 }
