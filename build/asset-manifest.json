@@ -1,13 +1,25 @@
 {
   "files": {
-    "main.css": "/static/css/main.930e4c9f.css",
-    "main.js": "/static/js/main.b0f13d46.js",
+    "main.css": "/static/css/main.15cd75ab.css",
+    "main.js": "/static/js/main.c26aae05.js",
+    "static/media/park-background.png": "/static/media/park-background.f6467e03da4a55c35d12.png",
+    "static/media/city-background.png": "/static/media/city-background.be43996a602a570fa121.png",
+    "static/media/party-background.png": "/static/media/party-background.a44a0a1369b9a0100ed1.png",
+    "static/media/gym-background.png": "/static/media/gym-background.f1c41f0fb1e4402efaae.png",
+    "static/media/sitting-mask.png": "/static/media/sitting-mask.4994af426630cdc5318f.png",
+    "static/media/standing-mask.png": "/static/media/standing-mask.53fe81425aeb5ffc8c33.png",
+    "static/media/person-relaxed-mask.png": "/static/media/person-relaxed-mask.eb38421d16626dfd570c.png",
+    "static/media/person-happy-mask.png": "/static/media/person-happy-mask.810b7a9fbd51dded0177.png",
+    "static/media/person-sad-mask.png": "/static/media/person-sad-mask.a13a6c5a3c98170b0a6c.png",
+    "static/media/dancing-mask.png": "/static/media/dancing-mask.76cda01e8875677474cc.png",
+    "static/media/person-energetic-mask.png": "/static/media/person-energetic-mask.0527f8f5f2e4bb55db43.png",
+    "static/media/running-mask.png": "/static/media/running-mask.7f83107c93432df6d754.png",
     "index.html": "/index.html",
-    "main.930e4c9f.css.map": "/static/css/main.930e4c9f.css.map",
-    "main.b0f13d46.js.map": "/static/js/main.b0f13d46.js.map"
+    "main.15cd75ab.css.map": "/static/css/main.15cd75ab.css.map",
+    "main.c26aae05.js.map": "/static/js/main.c26aae05.js.map"
   },
   "entrypoints": [
-    "static/css/main.930e4c9f.css",
-    "static/js/main.b0f13d46.js"
+    "static/css/main.15cd75ab.css",
+    "static/js/main.c26aae05.js"
   ]
 }

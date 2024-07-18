@@ -1,77 +1,72 @@
 import React, { useState } from "react";
 
+import Happy from "../Moodyblues pictures/person-happy-mask.png";
+import Sad from "../Moodyblues pictures/person-sad-mask.png";
+import Energetic from "../Moodyblues pictures/person-energetic-mask.png";
+import Relaxed from "../Moodyblues pictures/person-relaxed-mask.png";
+import Running from "../Moodyblues pictures/running-mask.png";
+import Sitting from "../Moodyblues pictures/sitting-mask.png";
+import Standing from "../Moodyblues pictures/standing-mask.png";
+import Dancing from "../Moodyblues pictures/dancing-mask.png";
+import City from "../Moodyblues pictures/city-background.png";
+import Park from "../Moodyblues pictures/park-background.png";
+import Party from "../Moodyblues pictures/party-background.png";
+import Gym from "../Moodyblues pictures/gym-background.png";
+
+const faces = [Happy, Sad, Energetic, Relaxed];
+const bodies = [Running, Sitting, Standing, Dancing];
+const backgrounds = [City, Park, Party, Gym];
+
 const MoodSelect = ({ onMoodSelect }) => {
-  const [selectedBackground, setSelectedBackground] = useState("");
-  const [selectedFace, setSelectedFace] = useState("");
-  const [selectedBody, setSelectedBody] = useState("");
+  const [selectedFaceIndex, setSelectedFaceIndex] = useState(0);
+  const [selectedBodyIndex, setSelectedBodyIndex] = useState(0);
+  const [selectedBackgroundIndex, setSelectedBackgroundIndex] = useState(0);
 
-  const faces = ["Happy", "Sad", "Energetic", "Relaxed"];
-  const bodies = ["Running", "Sitting", "Standing", "Dancing"];
-  const backgrounds = ["City", "Park", "Party", "Gym"];
-
-  const handleSubmit = () => {
-    if (!selectedBackground || !selectedFace || !selectedBody) {
-      alert("Please complete your mood selection by choosing one option from each category.");
-      return;
-    }
-
-    const selectedMood = {
-      background: selectedBackground,
-      face: selectedFace,
-      body: selectedBody,
-    };
-
-    console.log("User's selected mood:", selectedMood);
-    onMoodSelect(selectedMood);
+  const getNextImageIndex = (currentIndex, images) => {
+    return (currentIndex + 1) % images.length;
   };
 
-  const isSelected = (category, value) => {
-    if (category === "background") return selectedBackground === value;
-    if (category === "face") return selectedFace === value;
-    if (category === "body") return selectedBody === value;
-    return false;
+  const handleImageClick = (type) => {
+    if (type === 'face') {
+      setSelectedFaceIndex(getNextImageIndex(selectedFaceIndex, faces));
+    } else if (type === 'body') {
+      setSelectedBodyIndex(getNextImageIndex(selectedBodyIndex, bodies));
+    } else if (type === 'background') {
+      setSelectedBackgroundIndex(getNextImageIndex(selectedBackgroundIndex, backgrounds));
+    }
+  };
+
+  const handleSubmit = () => {
+    onMoodSelect({
+      background: backgrounds[selectedBackgroundIndex],
+      face: faces[selectedFaceIndex],
+      body: bodies[selectedBodyIndex],
+    });
   };
 
   return (
-    <div>
-      <h2>Select your mood:</h2>
+    <div className="mood-select-container">
+      <img
+        src={backgrounds[selectedBackgroundIndex]}
+        alt="Background"
+        className="mood-select-background"
+        onClick={() => handleImageClick('background')}
+      />
+      <img
+        src={bodies[selectedBodyIndex]}
+        alt="Body"
+        className="mood-select-body"
+        onClick={() => handleImageClick('body')}
+      />
+      <img
+        src={faces[selectedFaceIndex]}
+        alt="Face"
+        className="mood-select-face"
+        onClick={() => handleImageClick('face')}
+      />
       <div>
-        <h3>Background</h3>
-        {backgrounds.map((background) => (
-          <button
-            key={background}
-            className={isSelected("background", background.toLowerCase()) ? "selected" : ""}
-            onClick={() => setSelectedBackground(background.toLowerCase())}
-          >
-            {background}
-          </button>
-        ))}
+        <button onClick={handleSubmit}>Get Playlist</button>
       </div>
-      <div>
-        <h3>Face</h3>
-        {faces.map((face) => (
-          <button
-            key={face}
-            className={isSelected("face", face.toLowerCase()) ? "selected" : ""}
-            onClick={() => setSelectedFace(face.toLowerCase())}
-          >
-            {face}
-          </button>
-        ))}
-      </div>
-      <div>
-        <h3>Body</h3>
-        {bodies.map((body) => (
-          <button
-            key={body}
-            className={isSelected("body", body.toLowerCase()) ? "selected" : ""}
-            onClick={() => setSelectedBody(body.toLowerCase())}
-          >
-            {body}
-          </button>
-        ))}
-      </div>
-      <button onClick={handleSubmit}>Get Playlist</button>
     </div>
   );
 };
