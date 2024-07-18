@@ -7,7 +7,7 @@ const Playlist = ({ songs }) => {
       <ul>
         {songs.map((song, index) => (
           <li key={index}>
-            {song.name} by {song.artist}
+            {song.name} by {song.artist} <br></br>
           </li>
         ))}
       </ul>
