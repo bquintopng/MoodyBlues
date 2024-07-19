@@ -112,7 +112,18 @@ app.get("/recommendations", async (req, res) => {
           limit: 10,
           target_energy:
             face === "energetic" ? 0.8 : face === "relaxed" ? 0.2 : 0.5,
-          target_valence: face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
+          target_valence: 
+            face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
+          target_danceability:
+            background === "party" ? 0.9 : background === "park" ? 0.3 : 0.5,
+          // target_speechiness:
+          // target_instrumentalness: 
+          target_liveness:
+            body === "dancing" ? 0.8 : body === "sitting" ? 0.2 : 0.5,
+          target_loudness:
+            background === "gym" ? 0.7 : background === "city" ? 0.3 : 0.5,
+          target_acousticness:
+            body === "standing" ? 0.6 : body === "running" ? 0.3 : 0.5,
         },
         headers: {
           Authorization: `Bearer ${accessToken}`,

@@ -45,28 +45,28 @@ const MoodSelect = ({ onMoodSelect }) => {
   };
 
   return (
-    <div className="mood-select-container">
-      <img
-        src={backgrounds[selectedBackgroundIndex]}
-        alt="Background"
-        className="mood-select-background"
-        onClick={() => handleImageClick('background')}
-      />
-      <img
-        src={bodies[selectedBodyIndex]}
-        alt="Body"
-        className="mood-select-body"
-        onClick={() => handleImageClick('body')}
-      />
-      <img
-        src={faces[selectedFaceIndex]}
-        alt="Face"
-        className="mood-select-face"
-        onClick={() => handleImageClick('face')}
-      />
-      <div>
-        <button onClick={handleSubmit}>Get Playlist</button>
+    <div>
+      <div className="mood-select-container">
+        <img
+          src={backgrounds[selectedBackgroundIndex]}
+          alt="Background"
+          className="mood-select-background"
+          onClick={() => handleImageClick('background')}
+        />
+        <img
+          src={bodies[selectedBodyIndex]}
+          alt="Body"
+          className="mood-select-body"
+          onClick={() => handleImageClick('body')}
+        />
+        <img
+          src={faces[selectedFaceIndex]}
+          alt="Face"
+          className="mood-select-face"
+          onClick={() => handleImageClick('face')}
+        />
       </div>
+      <button onClick={handleSubmit}>Get Playlist</button>
     </div>
   );
 };
