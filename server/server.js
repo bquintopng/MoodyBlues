@@ -5,7 +5,7 @@ const querystring = require("querystring");
 
 dotenv.config();
 
-var app = express();
+const app = express();
 const port = 3000;
 
 app.use(express.static("build"));
@@ -13,8 +13,7 @@ app.use(express.static("build"));
 const spotifyAuthEndpoint = "https://accounts.spotify.com/authorize";
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-
-var redirect_uri = "http://localhost:3000/callback";
+const redirect_uri = "http://localhost:3000/callback";
 
 function generateRandomString(length) {
   let text = "";
@@ -28,8 +27,8 @@ function generateRandomString(length) {
 }
 
 app.get("/login", function (req, res) {
-  var state = generateRandomString(16);
-  var scope = "user-read-private user-read-email user-top-read";
+  const state = generateRandomString(16);
+  const scope = "user-read-private user-read-email user-top-read playlist-modify-public";
 
   res.redirect(
     spotifyAuthEndpoint +
@@ -45,8 +44,8 @@ app.get("/login", function (req, res) {
 });
 
 app.get("/callback", function (req, res) {
-  var code = req.query.code || null;
-  var state = req.query.state || null;
+  const code = req.query.code || null;
+  const state = req.query.state || null;
 
   if (state === null) {
     res.redirect(
@@ -56,7 +55,7 @@ app.get("/callback", function (req, res) {
         })
     );
   } else {
-    var authOptions = {
+    const authOptions = {
       url: "https://accounts.spotify.com/api/token",
       data: {
         code: code,
@@ -67,18 +66,16 @@ app.get("/callback", function (req, res) {
         "content-type": "application/x-www-form-urlencoded",
         Authorization:
           "Basic " +
-          new Buffer.from(client_id + ":" + client_secret).toString("base64"),
+          Buffer.from(client_id + ":" + client_secret).toString("base64"),
       },
       json: true,
     };
 
     axios
-      .post(authOptions.url, authOptions.data, { headers: authOptions.headers })
+      .post(authOptions.url, querystring.stringify(authOptions.data), { headers: authOptions.headers })
       .then((response) => {
         const accessToken = response.data.access_token;
-        res.redirect(
-          "/?" + querystring.stringify({ access_token: accessToken })
-        );
+        res.redirect("/?" + querystring.stringify({ access_token: accessToken }));
       })
       .catch((error) => {
         console.error("Error getting Spotify access token:", error);
@@ -95,7 +92,6 @@ app.get("/recommendations", async (req, res) => {
   }
 
   try {
-    // Get user's top tracks or artists
     const topTracksResponse = await axios.get(
       "https://api.spotify.com/v1/me/top/tracks",
       {
@@ -106,18 +102,28 @@ app.get("/recommendations", async (req, res) => {
     );
 
     const topTracks = topTracksResponse.data.items;
-    const seedTracks = topTracks.slice(0, 5).map((track) => track.id); // Use top 5 tracks as seeds
+    const seedTracks = topTracks.slice(0, 5).map((track) => track.id);
 
-    // Get recommendations based on mood and top tracks
     const recommendationsResponse = await axios.get(
       "https://api.spotify.com/v1/recommendations",
       {
         params: {
           seed_tracks: seedTracks.join(","),
-          limit: 5, // Get 5 recommendations
+          limit: 10,
           target_energy:
             face === "energetic" ? 0.8 : face === "relaxed" ? 0.2 : 0.5,
-          target_valence: face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
+          target_valence: 
+            face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
+          target_danceability:
+            background === "party" ? 0.9 : background === "park" ? 0.3 : 0.5,
+          // target_speechiness:
+          // target_instrumentalness: 
+          target_liveness:
+            body === "dancing" ? 0.8 : body === "sitting" ? 0.2 : 0.5,
+          target_loudness:
+            background === "gym" ? 0.7 : background === "city" ? 0.3 : 0.5,
+          target_acousticness:
+            body === "standing" ? 0.6 : body === "running" ? 0.3 : 0.5,
         },
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -127,6 +133,7 @@ app.get("/recommendations", async (req, res) => {
 
     const recommendations = recommendationsResponse.data.tracks.map(
       (track) => ({
+        id: track.id,
         name: track.name,
         artist: track.artists[0].name,
       })
@@ -134,11 +141,60 @@ app.get("/recommendations", async (req, res) => {
 
     res.json({ songs: recommendations });
   } catch (error) {
-    console.error(
-      "Error getting recommendations:",
-      error.response ? error.response.data : error.message
-    );
+    console.error("Error getting recommendations:", error.response ? error.response.data : error.message);
     res.status(500).send("Error getting recommendations");
+  }
+});
+
+app.get("/create-playlist", async (req, res) => {
+  const { access_token: accessToken, songs } = req.query;
+
+  if (!accessToken || !songs) {
+    return res.status(400).send("Access token or songs list is missing");
+  }
+
+  try {
+    const userResponse = await axios.get("https://api.spotify.com/v1/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    const userId = userResponse.data.id;
+
+    const createPlaylistResponse = await axios.post(
+      `https://api.spotify.com/v1/users/${userId}/playlists`,
+      {
+        name: "Mood Playlist",
+        description: "Playlist based on your mood",
+        public: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const playlistId = createPlaylistResponse.data.id;
+
+    await axios.post(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      {
+        uris: songs.split(","),
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    res.send("Playlist created and tracks added successfully");
+  } catch (error) {
+    console.error("Error creating playlist:", error);
+    res.status(500).send("Error creating playlist");
   }
 });
 

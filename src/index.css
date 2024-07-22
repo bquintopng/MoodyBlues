@@ -1,9 +1,33 @@
+/* Center the entire body content */
 body {
   font-family: Arial, sans-serif;
   text-align: center;
-  margin-top: 50px;
+  margin: 50px auto;
+  max-width: 800px; /* Optional: limits the width of the content for better readability */
 }
 
+/* Style the container for playlist and buttons */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px; /* Optional: adds space above the container */
+}
+
+/* Remove default list styling */
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Style list items */
+li {
+  margin-bottom: 10px; /* Space between list items */
+  font-size: 18px; /* Optional: adjust font size for better readability */
+}
+
+/* Style for buttons */
 button {
   margin: 10px;
   padding: 10px 20px;
@@ -14,6 +38,55 @@ button {
   transition: background-color 0.25s;
 }
 
+/* Hover effect */
 button:hover {
   background-color: hsl(214, 100%, 56%);
+}
+
+/* Selected state effect */
+button.selected {
+  background-color: hsl(214, 100%, 60%); /* Darker color for selected state */
+}
+
+.mood-select-container {
+  position: relative;
+  width: 100%; /* Use full width */
+  max-width: 1000px; /* Set maximum width for the container */
+  height: 600px; /* Set a fixed height */
+  margin: 0 auto 20px; /* Center container horizontally and add space below */
+  text-align: center; /* Center text inside container */
+}
+
+.mood-select-background,
+.mood-select-body,
+.mood-select-face {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  object-fit: cover; /* Maintain aspect ratio while covering the container */
+}
+
+.mood-select-background {
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* Background is at the bottom */
+}
+
+.mood-select-body {
+  top: 50%;
+  transform: translate(-50%, -50%); /* Center body horizontally and vertically */
+  max-height: 300px;
+  z-index: 2; /* Body is in the middle */
+}
+
+.mood-select-face {
+  top: 35%; /* Adjust this value to position the face relative to the body */
+  transform: translate(-50%, -130%);
+  max-height: 150px;
+  z-index: 3; /* Face is on top */
+}
+
+.mood-select-image.hidden {
+  display: none; /* Hide image when not in use */
 }
