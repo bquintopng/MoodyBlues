@@ -14,6 +14,7 @@ const spotifyAuthEndpoint = "https://accounts.spotify.com/authorize";
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 const redirect_uri = "http://localhost:3000/callback";
+console.log(client_id, client_secret);
 
 function generateRandomString(length) {
   let text = "";
@@ -28,7 +29,8 @@ function generateRandomString(length) {
 
 app.get("/login", function (req, res) {
   const state = generateRandomString(16);
-  const scope = "user-read-private user-read-email user-top-read playlist-modify-public";
+  const scope =
+    "user-read-private user-read-email user-top-read playlist-modify-public";
 
   res.redirect(
     spotifyAuthEndpoint +
@@ -72,10 +74,14 @@ app.get("/callback", function (req, res) {
     };
 
     axios
-      .post(authOptions.url, querystring.stringify(authOptions.data), { headers: authOptions.headers })
+      .post(authOptions.url, querystring.stringify(authOptions.data), {
+        headers: authOptions.headers,
+      })
       .then((response) => {
         const accessToken = response.data.access_token;
-        res.redirect("/?" + querystring.stringify({ access_token: accessToken }));
+        res.redirect(
+          "/?" + querystring.stringify({ access_token: accessToken })
+        );
       })
       .catch((error) => {
         console.error("Error getting Spotify access token:", error);
@@ -112,12 +118,11 @@ app.get("/recommendations", async (req, res) => {
           limit: 10,
           target_energy:
             face === "energetic" ? 0.8 : face === "relaxed" ? 0.2 : 0.5,
-          target_valence: 
-            face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
+          target_valence: face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
           target_danceability:
             background === "party" ? 0.9 : background === "park" ? 0.3 : 0.5,
           // target_speechiness:
-          // target_instrumentalness: 
+          // target_instrumentalness:
           target_liveness:
             body === "dancing" ? 0.8 : body === "sitting" ? 0.2 : 0.5,
           target_loudness:
@@ -141,7 +146,10 @@ app.get("/recommendations", async (req, res) => {
 
     res.json({ songs: recommendations });
   } catch (error) {
-    console.error("Error getting recommendations:", error.response ? error.response.data : error.message);
+    console.error(
+      "Error getting recommendations:",
+      error.response ? error.response.data : error.message
+    );
     res.status(500).send("Error getting recommendations");
   }
 });
