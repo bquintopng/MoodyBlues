@@ -17,6 +17,10 @@ const faces = [Happy, Sad, Energetic, Relaxed];
 const bodies = [Running, Sitting, Standing, Dancing];
 const backgrounds = [City, Park, Party, Gym];
 
+const facesText = ["Happy", "Sad", "Energetic", "Relaxed"]
+const bodiesText = ["Running", "Sitting", "Standing", "Dancing"];
+const backgroundsText = ["City", "Park", "Party", "Gym"];
+
 const MoodSelect = ({ onMoodSelect }) => {
   const [selectedFaceIndex, setSelectedFaceIndex] = useState(0);
   const [selectedBodyIndex, setSelectedBodyIndex] = useState(0);
@@ -45,26 +49,41 @@ const MoodSelect = ({ onMoodSelect }) => {
   };
 
   return (
-    <div>
-      <div className="mood-select-container">
-        <img
-          src={backgrounds[selectedBackgroundIndex]}
-          alt="Background"
-          className="mood-select-background"
-          onClick={() => handleImageClick('background')}
-        />
-        <img
-          src={bodies[selectedBodyIndex]}
-          alt="Body"
-          className="mood-select-body"
-          onClick={() => handleImageClick('body')}
-        />
-        <img
-          src={faces[selectedFaceIndex]}
-          alt="Face"
-          className="mood-select-face"
-          onClick={() => handleImageClick('face')}
-        />
+    <div className="mood-select-wrapper">
+      <div className="mood-select-content">
+        <div className="instructions-box">
+          <p id="instructions-paragraph">Instructions:
+              
+              Create a character that best suits your mood!
+              Try clicking on the face, body, and background to change it
+              until you feel it suits you!</p>
+          <br></br>
+          <p>Current face is: {facesText[selectedFaceIndex]}</p>
+          <br></br>
+          <p>Current body/pose is: {bodiesText[selectedBodyIndex]}</p>
+          <br></br>
+          <p>Current background is: {backgroundsText[selectedBackgroundIndex]}</p>
+        </div>
+        <div className="mood-select-container">
+          <img
+            src={backgrounds[selectedBackgroundIndex]}
+            alt="Background"
+            className="mood-select-background"
+            onClick={() => handleImageClick('background')}
+          />
+          <img
+            src={bodies[selectedBodyIndex]}
+            alt="Body"
+            className="mood-select-body"
+            onClick={() => handleImageClick('body')}
+          />
+          <img
+            src={faces[selectedFaceIndex]}
+            alt="Face"
+            className="mood-select-face"
+            onClick={() => handleImageClick('face')}
+          />
+        </div>
       </div>
       <button onClick={handleSubmit}>Get Playlist</button>
     </div>

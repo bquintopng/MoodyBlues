@@ -48,6 +48,32 @@ button.selected {
   background-color: hsl(214, 100%, 60%); /* Darker color for selected state */
 }
 
+.mood-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Align items to the start of the container */
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.instruction-box {
+  background-color: #f0f0f0; /* Light grey background */
+  padding: 20px;
+  margin-right: 20px;
+  width: 200px; /* Fixed width for the instruction box */
+  text-align: left; /* Align text to the left */
+  border-radius: 5px;
+}
+
+.mood-select-content {
+  display: flex; /* Arrange items in a row */
+  justify-content: center; /* Center items horizontally */
+  align-items: flex-start; /* Align items to the start of the container */
+  width: 100%;
+  max-width: 1500px;
+}
+
 .mood-select-container {
   position: relative;
   width: 100%; /* Use full width */
