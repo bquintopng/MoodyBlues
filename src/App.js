@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import LoginButton from "./components/LoginButton";
+import Home from "./components/Home";
 import MoodSelect from "./components/MoodSelect";
 import Playlist from "./components/Playlist";
 
 const App = () => {
   const [accessToken, setAccessToken] = useState(null);
   const [songs, setSongs] = useState([]);
-  const [mood, setMood] = useState({ background: "", face: "", body: "" });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -29,11 +28,11 @@ const App = () => {
     setSongs(response.data.songs);
   };
 
-  
-
   const handleAddPlaylist = async () => {
     try {
-      const trackUris = songs.map((song) => `spotify:track:${song.id}`).join(",");
+      const trackUris = songs
+        .map((song) => `spotify:track:${song.id}`)
+        .join(",");
       await axios.get("/create-playlist", {
         params: {
           access_token: accessToken,
@@ -46,22 +45,37 @@ const App = () => {
     }
   };
 
+  const handleGoBackHome = () => {
+    setSongs([]);
+    setAccessToken(null);
+  };
   const handleGoBack = () => {
     setSongs([]);
+  };
+
+  const handleDesignChange = (design) => {
+    localStorage.setItem("selectedDesign", design);
   };
 
   return (
     <div className="App">
       <h1>Moody Blues</h1>
-      {!accessToken && <LoginButton />}
+      {!accessToken && <Home onDesignSelect={handleDesignChange} />}
       {accessToken && !songs.length && (
-        <MoodSelect onMoodSelect={handleMoodSelect} />
+        <>
+          <MoodSelect
+            onMoodSelect={handleMoodSelect}
+            selectedDesign={localStorage.getItem("selectedDesign")}
+          />
+          <button onClick={handleGoBackHome}>Return Home</button>
+        </>
       )}
       {songs.length > 0 && (
         <>
           <Playlist songs={songs} />
           <button onClick={handleAddPlaylist}>Add Playlist to Profile</button>
-          <button onClick={handleGoBack}>Go Back</button>
+          <button onClick={handleGoBack}>Select New Mood</button>
+          <button onClick={handleGoBackHome}>Return Home</button>
         </>
       )}
     </div>
