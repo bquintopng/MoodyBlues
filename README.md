@@ -11,6 +11,8 @@ This is a project for the class.
 
 `npm run build`
 
+(if `npm run build` doesn't work, do `npm install` first then try the command again)
+
 `node server/server.js`
 
 The app is hosted on: http://localhost:3000/
