@@ -7,6 +7,7 @@ import Playlist from "./components/Playlist";
 const App = () => {
   const [accessToken, setAccessToken] = useState(null);
   const [songs, setSongs] = useState([]);
+  const [selectedDesign, setSelectedDesign] = useState(localStorage.getItem("selectedDesign") || "");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -16,23 +17,35 @@ const App = () => {
     }
   }, []);
 
-  const handleMoodSelect = async ({ background, face, body }) => {
-    const response = await axios.get(`/recommendations`, {
-      params: {
-        background,
-        face,
-        body,
-        access_token: accessToken,
-      },
-    });
+  const handleMoodSelect = async ({ background, face, body, selectedDesign}) => {
+    let response;
+    if (selectedDesign === "A") {
+      response = await axios.get(`/recommendations`, {
+        params: {
+          background,
+          face,
+          body,
+          access_token: accessToken,
+        },
+      });
+    }
+    else if (selectedDesign === "B") {
+      response = await axios.get(`/recommendations`, {
+        params: {
+          block1,
+          block2,
+          block3,
+          block4,
+          access_token: accessToken,
+        },
+      });
+    }
     setSongs(response.data.songs);
   };
 
   const handleAddPlaylist = async () => {
     try {
-      const trackUris = songs
-        .map((song) => `spotify:track:${song.id}`)
-        .join(",");
+      const trackUris = songs.map((song) => `spotify:track:${song.id}`).join(",");
       await axios.get("/create-playlist", {
         params: {
           access_token: accessToken,
@@ -48,13 +61,17 @@ const App = () => {
   const handleGoBackHome = () => {
     setSongs([]);
     setAccessToken(null);
+    localStorage.removeItem("selectedDesign"); // Clear item from local storage
   };
+
   const handleGoBack = () => {
     setSongs([]);
   };
 
   const handleDesignChange = (design) => {
-    localStorage.setItem("selectedDesign", design);
+    console.log("Selected Design in App:", design);
+    setSelectedDesign(design);
+    localStorage.setItem("selectedDesign", design); // Store in local storage
   };
 
   return (
@@ -65,7 +82,7 @@ const App = () => {
         <>
           <MoodSelect
             onMoodSelect={handleMoodSelect}
-            selectedDesign={localStorage.getItem("selectedDesign")}
+            selectedDesign={selectedDesign}
           />
           <button onClick={handleGoBackHome}>Return Home</button>
         </>

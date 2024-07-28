@@ -7,7 +7,9 @@ const Home = ({ onDesignSelect }) => {
   const handleDesignChange = (design) => {
     setSelected(design);
     onDesignSelect(design);
+    localStorage.setItem("selectedDesign", design); // Store in local storage
   };
+  
 
   return (
     <div>

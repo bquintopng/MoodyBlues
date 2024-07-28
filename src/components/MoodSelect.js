@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Happy from "../images/person-happy-mask.png";
 import Sad from "../images/person-sad-mask.png";
@@ -22,9 +22,10 @@ const bodiesText = ["Running", "Sitting", "Standing", "Dancing"];
 const backgroundsText = ["City", "Park", "Party", "Gym"];
 
 const MoodSelect = ({ onMoodSelect, selectedDesign }) => {
-  console.log(selectedDesign);
-  console.log(selectedDesign);
-  console.log(selectedDesign);
+  useEffect(() => {
+    console.log("Selected Design in MoodSelect:", selectedDesign);
+  }, [selectedDesign]);
+  
 
   const [selectedFaceIndex, setSelectedFaceIndex] = useState(0);
   const [selectedBodyIndex, setSelectedBodyIndex] = useState(0);
@@ -40,18 +41,29 @@ const MoodSelect = ({ onMoodSelect, selectedDesign }) => {
     } else if (type === "body") {
       setSelectedBodyIndex(getNextImageIndex(selectedBodyIndex, bodies));
     } else if (type === "background") {
-      setSelectedBackgroundIndex(
-        getNextImageIndex(selectedBackgroundIndex, backgrounds)
-      );
+      setSelectedBackgroundIndex(getNextImageIndex(selectedBackgroundIndex, backgrounds));
     }
   };
 
   const handleSubmit = () => {
-    onMoodSelect({
-      background: backgrounds[selectedBackgroundIndex],
-      face: faces[selectedFaceIndex],
-      body: bodies[selectedBodyIndex],
-    });
+    if (selectedDesign === "A") {
+      onMoodSelect({
+        background: backgrounds[selectedBackgroundIndex],
+        face: faces[selectedFaceIndex],
+        body: bodies[selectedBodyIndex],
+      });
+    }
+    // else if (selectedDesign === "B") {
+    //   onMoodSelect({
+    //     block1: puzzleBlock1;
+    //     block2: puzzleBlock2;
+    //     block3: puzzleBlock3;
+    //     block4: puzzleBlock4;
+    //   })
+    // }
+    else {
+      console.warn("No valid design selected");
+    }
   };
 
   return (
@@ -70,9 +82,7 @@ const MoodSelect = ({ onMoodSelect, selectedDesign }) => {
             <br />
             <p>Current body/pose is: {bodiesText[selectedBodyIndex]}</p>
             <br />
-            <p>
-              Current background is: {backgroundsText[selectedBackgroundIndex]}
-            </p>
+            <p>Current background is: {backgroundsText[selectedBackgroundIndex]}</p>
           </div>
           <div className="mood-select-container">
             <img

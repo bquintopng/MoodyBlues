@@ -91,7 +91,7 @@ app.get("/callback", function (req, res) {
 });
 
 app.get("/recommendations", async (req, res) => {
-  const { background, face, body, access_token: accessToken } = req.query;
+  const { background, face, body, block1, block2, block3, block4, access_token: accessToken } = req.query;
 
   if (!accessToken) {
     return res.status(400).send("Access token is missing");
@@ -110,26 +110,40 @@ app.get("/recommendations", async (req, res) => {
     const topTracks = topTracksResponse.data.items;
     const seedTracks = topTracks.slice(0, 5).map((track) => track.id);
 
+    // could still use these two parameters to find songs
+    // target_speechiness:
+    // target_instrumentalness:
+
+    let params;
+    if (background && face && body) {
+      params = {
+        seed_tracks: seedTracks.join(","),
+        limit: 10,
+        target_energy: face === "energetic" ? 0.8 : face === "relaxed" ? 0.2 : 0.5,
+        target_valence: face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
+        target_danceability: background === "party" ? 0.9 : background === "park" ? 0.3 : 0.5,
+        target_liveness: body === "dancing" ? 0.8 : body === "sitting" ? 0.2 : 0.5,
+        target_loudness: background === "gym" ? 0.7 : background === "city" ? 0.3 : 0.5,
+        target_acousticness: body === "standing" ? 0.6 : body === "running" ? 0.3 : 0.5,
+      };
+    } else if (block1 && block2 && block3 && block4) {
+      params = {
+        seed_tracks: seedTracks.join(","),
+        limit: 10,
+        // Replace these with actual logic for blocks
+        // target_attribute1: block1 === "value1" ? 0.8 : 0.5,
+        // target_attribute2: block2 === "value2" ? 0.7 : 0.4,
+        // target_attribute3: block3 === "value3" ? 0.6 : 0.3,
+        // target_attribute4: block4 === "value4" ? 0.5 : 0.2,
+      };
+    } else {
+      return res.status(400).send("Invalid parameters");
+    }
+
     const recommendationsResponse = await axios.get(
       "https://api.spotify.com/v1/recommendations",
       {
-        params: {
-          seed_tracks: seedTracks.join(","),
-          limit: 10,
-          target_energy:
-            face === "energetic" ? 0.8 : face === "relaxed" ? 0.2 : 0.5,
-          target_valence: face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
-          target_danceability:
-            background === "party" ? 0.9 : background === "park" ? 0.3 : 0.5,
-          // target_speechiness:
-          // target_instrumentalness:
-          target_liveness:
-            body === "dancing" ? 0.8 : body === "sitting" ? 0.2 : 0.5,
-          target_loudness:
-            background === "gym" ? 0.7 : background === "city" ? 0.3 : 0.5,
-          target_acousticness:
-            body === "standing" ? 0.6 : body === "running" ? 0.3 : 0.5,
-        },
+        params,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
