@@ -29,17 +29,17 @@ const App = () => {
         },
       });
     }
-    else if (selectedDesign === "B") {
-      response = await axios.get(`/recommendations`, {
-        params: {
-          block1,
-          block2,
-          block3,
-          block4,
-          access_token: accessToken,
-        },
-      });
-    }
+    // else if (selectedDesign === "B") {
+    //   response = await axios.get(`/recommendations`, {
+    //     params: {
+    //       block1,
+    //       block2,
+    //       block3,
+    //       block4,
+    //       access_token: accessToken,
+    //     },
+    //   });
+    // }
     setSongs(response.data.songs);
   };
 
