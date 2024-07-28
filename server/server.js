@@ -92,6 +92,7 @@ app.get("/callback", function (req, res) {
 
 app.get("/recommendations", async (req, res) => {
   const { background, face, body, block1, block2, block3, block4, access_token: accessToken } = req.query;
+  console.log("Recommendations endpoint called with:", req.query);
 
   if (!accessToken) {
     return res.status(400).send("Access token is missing");
@@ -114,11 +115,13 @@ app.get("/recommendations", async (req, res) => {
     // target_speechiness:
     // target_instrumentalness:
 
-    let params;
+    let params = {
+      seed_tracks: seedTracks.join(","),
+      limit: 10,
+    };
     if (background && face && body) {
       params = {
-        seed_tracks: seedTracks.join(","),
-        limit: 10,
+        ...params,
         target_energy: face === "energetic" ? 0.8 : face === "relaxed" ? 0.2 : 0.5,
         target_valence: face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
         target_danceability: background === "party" ? 0.9 : background === "park" ? 0.3 : 0.5,
@@ -126,16 +129,22 @@ app.get("/recommendations", async (req, res) => {
         target_loudness: background === "gym" ? 0.7 : background === "city" ? 0.3 : 0.5,
         target_acousticness: body === "standing" ? 0.6 : body === "running" ? 0.3 : 0.5,
       };
-    } else if (block1 && block2 && block3 && block4) {
+    } else if (block1 || block2 || block3 || block4) {
       params = {
-        seed_tracks: seedTracks.join(","),
-        limit: 10,
-        // Replace these with actual logic for blocks
-        // target_attribute1: block1 === "value1" ? 0.8 : 0.5,
-        // target_attribute2: block2 === "value2" ? 0.7 : 0.4,
-        // target_attribute3: block3 === "value3" ? 0.6 : 0.3,
-        // target_attribute4: block4 === "value4" ? 0.5 : 0.2,
-      };
+        ...params,
+      }
+      if (block1 === "Happy" || block2 === "Happy" || block3 === "Happy" || block4 === "Happy") {
+        params.target_energy = 0.8;
+      }
+      if (block1 === "Joyful" || block2 === "Joyful" || block3 === "Joyful" || block4 === "Joyful") {
+        params.target_danceability = 0.6;
+      }
+      if (block1 === "Excited" || block2 === "Excited" || block3 === "Excited" || block4 === "Excited") {
+        params.target_valence = 0.7;
+      }
+      if (block1 === "Content" || block2 === "Content" || block3 === "Content" || block4 === "Content") {
+        params.target_loudness = 0.5;
+      }
     } else {
       return res.status(400).send("Invalid parameters");
     }

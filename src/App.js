@@ -17,7 +17,8 @@ const App = () => {
     }
   }, []);
 
-  const handleMoodSelect = async ({ background, face, body, selectedDesign}) => {
+  const handleMoodSelect = async ({ background, face, body, block1, block2, block3, block4, selectedDesign}) => {
+    console.log("handleMoodSelect called with:", { background, face, body, block1, block2, block3, block4, selectedDesign });
     let response;
     if (selectedDesign === "A") {
       response = await axios.get(`/recommendations`, {
@@ -29,17 +30,17 @@ const App = () => {
         },
       });
     }
-    // else if (selectedDesign === "B") {
-    //   response = await axios.get(`/recommendations`, {
-    //     params: {
-    //       block1,
-    //       block2,
-    //       block3,
-    //       block4,
-    //       access_token: accessToken,
-    //     },
-    //   });
-    // }
+    else if (selectedDesign === "B") {
+      response = await axios.get(`/recommendations`, {
+        params: {
+          block1,
+          block2,
+          block3,
+          block4,
+          access_token: accessToken,
+        },
+      });
+    }
     setSongs(response.data.songs);
   };
 
