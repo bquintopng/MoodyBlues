@@ -91,7 +91,7 @@ app.get("/callback", function (req, res) {
 });
 
 app.get("/recommendations", async (req, res) => {
-  const { background, face, body, block1, block2, block3, block4, access_token: accessToken } = req.query;
+  const { background, face, body, block1, block2, block3, block4, selectedDesign, access_token: accessToken } = req.query;
   console.log("Recommendations endpoint called with:", req.query);
 
   if (!accessToken) {
@@ -122,12 +122,12 @@ app.get("/recommendations", async (req, res) => {
     if (background && face && body) {
       params = {
         ...params,
-        target_energy: face === "energetic" ? 0.8 : face === "relaxed" ? 0.2 : 0.5,
-        target_valence: face === "happy" ? 0.9 : face === "sad" ? 0.1 : 0.5,
-        target_danceability: background === "party" ? 0.9 : background === "park" ? 0.3 : 0.5,
-        target_liveness: body === "dancing" ? 0.8 : body === "sitting" ? 0.2 : 0.5,
-        target_loudness: background === "gym" ? 0.7 : background === "city" ? 0.3 : 0.5,
-        target_acousticness: body === "standing" ? 0.6 : body === "running" ? 0.3 : 0.5,
+        target_energy: face === "Energetic" ? 0.8 : face === "Relaxed" ? 0.2 : 0.5,
+        target_valence: face === "Happy" ? 0.9 : face === "Sad" ? 0.1 : 0.5,
+        target_danceability: background === "Party" ? 0.9 : background === "Park" ? 0.3 : 0.5,
+        target_liveness: body === "Dancing" ? 0.8 : body === "Sitting" ? 0.2 : 0.5,
+        target_loudness: background === "Gym" ? 0.7 : background === "City" ? 0.3 : 0.5,
+        target_acousticness: body === "Standing" ? 0.6 : body === "Running" ? 0.3 : 0.5,
       };
     } else if (block1 || block2 || block3 || block4) {
       params = {
@@ -148,6 +148,7 @@ app.get("/recommendations", async (req, res) => {
     } else {
       return res.status(400).send("Invalid parameters");
     }
+    console.log("parameters for song selection API call", params);
 
     const recommendationsResponse = await axios.get(
       "https://api.spotify.com/v1/recommendations",

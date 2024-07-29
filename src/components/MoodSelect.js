@@ -59,13 +59,21 @@ const MoodSelect = ({ onMoodSelect, selectedDesign }) => {
     console.log("Selected Face Index:", selectedFaceIndex);
     console.log("Selected Body Index:", selectedBodyIndex);
     console.log("Selected Background Index:", selectedBackgroundIndex);
+    console.log("Selected Block1", droppedWords[0]);
+    console.log("Selected Block2", droppedWords[1]);
+    console.log("Selected Block3", droppedWords[2]);
+    console.log("Selected Block4", droppedWords[3]);
+    console.log("Selected background", backgroundsText[selectedBackgroundIndex]);
+    console.log("Selected face",facesText[selectedFaceIndex]);
+    console.log("Selected body", bodiesText[selectedBodyIndex]);
 
     if (selectedDesign === "A") {
       console.log("selectedDesign is equal to A");
       onMoodSelect({
-        background: backgrounds[selectedBackgroundIndex],
-        face: faces[selectedFaceIndex],
-        body: bodies[selectedBodyIndex],
+        background: backgroundsText[selectedBackgroundIndex],
+        face: facesText[selectedFaceIndex],
+        body: bodiesText[selectedBodyIndex],
+        selectedDesign: selectedDesign,
       });
       console.log("Reached after prop function call")
     }
@@ -76,6 +84,7 @@ const MoodSelect = ({ onMoodSelect, selectedDesign }) => {
         block2: droppedWords[1],
         block3: droppedWords[2],
         block4: droppedWords[3],
+        selectedDesign, selectedDesign,
       });
       console.log("Reached after prop function call")
     }
