@@ -210,9 +210,7 @@ const MoodSelect = ({ onMoodSelect, selectedDesign }) => {
             </p>
             <br />
             <p>Current face is: {facesText[selectedFaceIndex]}</p>
-            <br />
             <p>Current body/pose is: {bodiesText[selectedBodyIndex]}</p>
-            <br />
             <p>Current background is: {backgroundsText[selectedBackgroundIndex]}</p>
           </div>
           <div className="mood-select-container">

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import LoginButton from "./LoginButton";
 
 const Home = ({ onDesignSelect }) => {
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState("A");
 
   const handleDesignChange = (design) => {
     setSelected(design);
