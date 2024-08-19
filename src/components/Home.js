@@ -1,13 +1,16 @@
-import React, { useState } from "react";
-import LoginButton from "./LoginButton";
+import React, { useState, useEffect } from "react";
+// import LoginButton from "./LoginButton";
 
 const Home = ({ onDesignSelect }) => {
-  const [selected, setSelected] = useState("A");
+  const [selected, setSelected] = useState(localStorage.getItem("selectedDesign") || "A");
+
+  useEffect(() => {
+    localStorage.setItem("selectedDesign", selected);
+    onDesignSelect(selected);
+  }, [selected, onDesignSelect]);
 
   const handleDesignChange = (design) => {
     setSelected(design);
-    onDesignSelect(design);
-    localStorage.setItem("selectedDesign", design); // Store in local storage
   };
   
 
@@ -35,7 +38,6 @@ const Home = ({ onDesignSelect }) => {
           Design B
         </label>
       </div>
-      <LoginButton />
     </div>
   );
 };

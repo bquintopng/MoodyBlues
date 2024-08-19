@@ -10,88 +10,8 @@ const port = 3000;
 
 app.use(express.static("build"));
 
-const spotifyAuthEndpoint = "https://accounts.spotify.com/authorize";
-const client_id = process.env.SPOTIFY_CLIENT_ID;
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirect_uri = "http://localhost:3000/callback";
-console.log(client_id, client_secret);
-
-function generateRandomString(length) {
-  let text = "";
-  const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
-app.get("/login", function (req, res) {
-  const state = generateRandomString(16);
-  const scope =
-    "user-read-private user-read-email user-top-read playlist-modify-public";
-
-  res.redirect(
-    spotifyAuthEndpoint +
-      "?" +
-      querystring.stringify({
-        response_type: "code",
-        client_id: client_id,
-        scope: scope,
-        redirect_uri: redirect_uri,
-        state: state,
-      })
-  );
-});
-
-app.get("/callback", function (req, res) {
-  const code = req.query.code || null;
-  const state = req.query.state || null;
-
-  if (state === null) {
-    res.redirect(
-      "/#" +
-        querystring.stringify({
-          error: "state_mismatch",
-        })
-    );
-  } else {
-    const authOptions = {
-      url: "https://accounts.spotify.com/api/token",
-      data: {
-        code: code,
-        redirect_uri: redirect_uri,
-        grant_type: "authorization_code",
-      },
-      headers: {
-        "content-type": "application/x-www-form-urlencoded",
-        Authorization:
-          "Basic " +
-          Buffer.from(client_id + ":" + client_secret).toString("base64"),
-      },
-      json: true,
-    };
-
-    axios
-      .post(authOptions.url, querystring.stringify(authOptions.data), {
-        headers: authOptions.headers,
-      })
-      .then((response) => {
-        const accessToken = response.data.access_token;
-        res.redirect(
-          "/?" + querystring.stringify({ access_token: accessToken })
-        );
-      })
-      .catch((error) => {
-        console.error("Error getting Spotify access token:", error);
-        res.send("Error getting Spotify access token");
-      });
-  }
-});
-
 app.get("/recommendations", async (req, res) => {
-  const { background, face, body, block1, block2, block3, block4, selectedDesign, access_token: accessToken } = req.query;
+  const { background, face, body, block1, block2, block3, block4, access_token: accessToken } = req.query;
   console.log("Recommendations endpoint called with:", req.query);
 
   if (!accessToken) {
@@ -110,7 +30,6 @@ app.get("/recommendations", async (req, res) => {
 
     const topTracks = topTracksResponse.data.items;
     const seedTracks = topTracks.slice(0, 5).map((track) => track.id);
-
     // could still use these two parameters to find songs
     // target_speechiness:
     // target_instrumentalness:
@@ -130,21 +49,73 @@ app.get("/recommendations", async (req, res) => {
         target_acousticness: body === "Standing" ? 0.6 : body === "Running" ? 0.3 : 0.5,
       };
     } else if (block1 || block2 || block3 || block4) {
-      params = {
-        ...params,
+      const moodsSet = new Set([block1, block2, block3, block4]);
+
+      let totalParams = {
+        target_energy: 0,
+        target_valence: 0,
+        target_danceability: 0,
+        target_loudness: 0,
+        target_acousticness: 0,
+        target_liveness: 0,
+        target_tempo: 0,
+      };
+      
+      let totalParamsCounter = {
+        target_energy: 0,
+        target_valence: 0,
+        target_danceability: 0,
+        target_loudness: 0,
+        target_acousticness: 0,
+        target_liveness: 0,
+        target_tempo: 0,
+      };
+
+      const moodParams = {
+        Happy: { target_energy: 0.8, target_valence: 0.8 },
+        Joyful: { target_danceability: 0.6 },
+        Excited: { target_valence: 0.7 },
+        Content: { target_loudness: 0.5 },
+        Sad: { target_valence: 0.2, target_energy: 0.3 },
+        Angry: { target_energy: 0.9, target_loudness: 0.8 },
+        Anxious: { target_tempo: 130, target_energy: 0.7 },
+        Relaxed: { target_valence: 0.6, target_energy: 0.2 },
+        Energetic: { target_energy: 0.9, target_tempo: 140 },
+        Bored: {target_valence: 0.3},
+        Frustrated: {target_energy: 0.8, target_valence: 0.3},
+        Nervous: {target_danceability: 0.3},
+        Calm: {target_energy: 0.3},
+        Depressed: {target_energy: 0.2, target_valence: 0.2},
+        Cheerful: {target_valence: 0.9, target_danceability: 0.6},
+        Irritated: {target_energy: 0.7, target_loudness: 0.6},
+        // Add other moods and their corresponding parameters here
+      };
+
+      // Accumulate values from the mood set
+      moodsSet.forEach(mood => {
+        if (moodParams[mood]) {
+          const params = moodParams[mood];
+          for (let key in params) {
+            if (totalParams.hasOwnProperty(key)) {
+              totalParams[key] += params[key];
+              totalParamsCounter[key]++;
+            }
+          }
+        }
+      });
+
+      // Calculate averages
+      const averageParams = {};
+      for (let key in totalParams) {
+        if (totalParamsCounter[key] > 0) {
+          averageParams[key] = totalParams[key] / totalParamsCounter[key];
+        }
       }
-      if (block1 === "Happy" || block2 === "Happy" || block3 === "Happy" || block4 === "Happy") {
-        params.target_energy = 0.8;
-      }
-      if (block1 === "Joyful" || block2 === "Joyful" || block3 === "Joyful" || block4 === "Joyful") {
-        params.target_danceability = 0.6;
-      }
-      if (block1 === "Excited" || block2 === "Excited" || block3 === "Excited" || block4 === "Excited") {
-        params.target_valence = 0.7;
-      }
-      if (block1 === "Content" || block2 === "Content" || block3 === "Content" || block4 === "Content") {
-        params.target_loudness = 0.5;
-      }
+
+      console.log(averageParams);
+
+      // Merge average mood parameters with the existing params
+      params = { ...params, ...averageParams };
     } else {
       return res.status(400).send("Invalid parameters");
     }
