@@ -86,7 +86,7 @@ const App = () => {
     const clientId = "0de8abb01227441488257a873f13296a";
     const redirectUri = "http://localhost:3000/";
 
-    const scope = "user-read-private user-read-email user-top-read playlist-modify-public";
+    const scope = "user-top-read playlist-modify-public";
   
     const url = `https://accounts.spotify.com/authorize?` +
                 `response_type=code&` +
