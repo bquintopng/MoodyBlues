@@ -21,6 +21,8 @@ To close the project, simply press `ctrl+c`
 
 ## Guide on Project
 
+![demo](./assets/Moody-Blues-Capture.gif)
+
 ### Home Page
 
 ### Instructions Page
@@ -29,7 +31,7 @@ To close the project, simply press `ctrl+c`
 
 #### Design A
 
-#### Desgin B
+#### Design B
 
 ### Playlist Page
 
