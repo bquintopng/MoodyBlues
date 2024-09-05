@@ -22,6 +22,7 @@ To close the project, simply press `ctrl+c`
 ## Guide on Project
 
 ![demo](./assets/Moody-Blues-Capture.gif)
+![demo](./assets/Moody-Blues-Capture-B.gif)
 
 ### Home Page
 
